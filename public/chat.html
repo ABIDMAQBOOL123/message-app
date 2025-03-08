@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat APP</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f2f5;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .chat-container {
+        width: 400px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .chat-header {
+        background-color: #075e54;
+        color: #fff;
+        padding: 15px;
+        text-align: center;
+        font-size: 18px;
+      }
+      .chat-messages {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+        border-bottom: 1px solid #ddd;
+      }
+      .message {
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+      }
+      .message.user {
+        align-items: flex-end; /* Your messages on the right */
+      }
+      .message.other {
+        align-items: flex-start; /* Other person's messages on the left */
+      }
+      .message .username {
+        font-weight: bold;
+        color: #075e54;
+      }
+      .message .timestamp {
+        font-size: 12px;
+        color: #888;
+        margin-left: 10px;
+      }
+      .message .text {
+        margin-top: 5px;
+        color: #333;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 70%;
+        word-wrap: break-word;
+      }
+      .message.user .text {
+        background-color: #dcf8c6; /* Light green for your messages */
+      }
+      .message.other .text {
+        background-color: #ece5dd; /* Light gray for other messages */
+      }
+      .chat-input {
+        display: flex;
+        padding: 10px;
+        background-color: #f0f2f5;
+      }
+      .chat-input input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        outline: none;
+      }
+      .chat-input button {
+        margin-left: 10px;
+        padding: 10px 20px;
+        background-color: #075e54;
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+      }
+      .chat-input button:hover {
+        background-color: #128c7e;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <div class="chat-header">Chat Room: <span id="roomName"></span></div>
+      <div class="chat-messages" id="messages"></div>
+      <div class="chat-input">
+        <input type="text" id="message" placeholder="Enter Message" />
+        <button id="sendBtn">Send</button>
+      </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const sendBtn = document.getElementById("sendBtn");
+      const messageInput = document.getElementById("message");
+      const allMessages = document.getElementById("messages");
+      const roomNameElement = document.getElementById("roomName");
+
+      // Retrieve username and room from localStorage
+      const username = localStorage.getItem("username");
+      const room = localStorage.getItem("room");
+
+      if (!username || !room) {
+        // Redirect to login if username or room is missing
+        window.location.href = "/login.html";
+      }
+
+      // Display room name
+      roomNameElement.innerText = room;
+
+      // Join the room
+      socket.emit("join-room", room);
+
+      // Listen for messages
+      socket.on("message", (data) => {
+        const { username: senderUsername, message, timestamp } = data;
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message");
+
+        // Determine if the message is from the current user or another user
+        if (senderUsername === username) {
+          messageElement.classList.add("user"); // Your messages
+        } else {
+          messageElement.classList.add("other"); // Other person's messages
+        }
+
+        const usernameElement = document.createElement("div");
+        usernameElement.classList.add("username");
+        usernameElement.innerText = senderUsername;
+
+        const timestampElement = document.createElement("span");
+        timestampElement.classList.add("timestamp");
+        timestampElement.innerText = timestamp;
+
+        const textElement = document.createElement("div");
+        textElement.classList.add("text");
+        textElement.innerText = message;
+
+        usernameElement.appendChild(timestampElement);
+        messageElement.appendChild(usernameElement);
+        messageElement.appendChild(textElement);
+
+        allMessages.appendChild(messageElement);
+        allMessages.scrollTop = allMessages.scrollHeight;
+      });
+
+      // Send message
+      sendBtn.addEventListener("click", (e) => {
+        const message = messageInput.value;
+        if (message.trim()) {
+          socket.emit("user-message", { room, message, username });
+          messageInput.value = "";
+        }
+      });
+
+      // Send message on Enter key press
+      messageInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          sendBtn.click();
+        }
+      });
+    </script>
+  </body>
+</html>
