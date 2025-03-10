@@ -4,99 +4,250 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - Chat App</title>
+    <title>Chat App Login</title>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f2f5;
+      * {
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #dadbd3; /* WhatsApp background */
         display: flex;
         justify-content: center;
         align-items: center;
         height: 100vh;
       }
+
       .login-container {
+        width: 350px;
         background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        width: 300px;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .login-header {
         text-align: center;
-      }
-      .login-container h2 {
         margin-bottom: 20px;
-        color: #075e54;
+        color: #075e54; /* WhatsApp dark green */
       }
-      .login-container input {
-        width: 100%;
-        padding: 10px;
+
+      .form-group {
         margin-bottom: 15px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        outline: none;
       }
-      .login-container button {
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #128c7e; /* WhatsApp teal */
+      }
+
+      .form-group input {
         width: 100%;
         padding: 10px;
-        background-color: #075e54;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: #128c7e;
+      }
+
+      .toggle-container {
+        display: flex;
+        margin-bottom: 20px;
+      }
+
+      .toggle-btn {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+        background-color: #f0f0f0;
         cursor: pointer;
       }
-      .login-container button:hover {
+
+      .toggle-btn.active {
         background-color: #128c7e;
+        color: white;
       }
-      .login-container p {
-        margin-top: 10px;
+
+      .toggle-btn:first-child {
+        border-radius: 5px 0 0 5px;
       }
-      .login-container a {
-        color: #075e54;
-        text-decoration: none;
+
+      .toggle-btn:last-child {
+        border-radius: 0 5px 5px 0;
       }
-      .login-container a:hover {
-        text-decoration: underline;
+
+      .submit-btn {
+        width: 100%;
+        padding: 12px;
+        background-color: #128c7e;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .submit-btn:hover {
+        background-color: #075e54;
+      }
+
+      .error-message {
+        color: #e74c3c;
+        font-size: 14px;
+        margin-top: 15px;
+        text-align: center;
+        display: none;
       }
     </style>
   </head>
   <body>
     <div class="login-container">
-      <h2>Login</h2>
-      <input type="text" id="username" placeholder="Enter your username" />
-      <input type="password" id="password" placeholder="Enter your password" />
-      <input type="text" id="room" placeholder="Enter room number" />
-      <button onclick="login()">Login</button>
-      <p>Don't have an account? <a href="/register.html">Register</a></p>
+      <h2 class="login-header" id="formTitle">Login to Chat</h2>
+
+      <div class="toggle-container">
+        <div class="toggle-btn active" id="loginToggle">Login</div>
+        <div class="toggle-btn" id="registerToggle">Register</div>
+      </div>
+
+      <form id="authForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+
+        <div class="form-group">
+          <label for="room">Room ID</label>
+          <input type="text" id="room" name="room" required />
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Login</button>
+      </form>
+
+      <p class="error-message" id="errorMsg"></p>
     </div>
 
     <script>
-      async function login() {
+      // DOM elements
+      const authForm = document.getElementById("authForm");
+      const formTitle = document.getElementById("formTitle");
+      const submitBtn = document.getElementById("submitBtn");
+      const loginToggle = document.getElementById("loginToggle");
+      const registerToggle = document.getElementById("registerToggle");
+      const errorMsg = document.getElementById("errorMsg");
+
+      // Form mode (login or register)
+      let isLoginMode = true;
+
+      // Toggle between login and register forms
+      loginToggle.addEventListener("click", () => {
+        isLoginMode = true;
+        loginToggle.classList.add("active");
+        registerToggle.classList.remove("active");
+        formTitle.textContent = "Login to Chat";
+        submitBtn.textContent = "Login";
+        errorMsg.style.display = "none";
+      });
+
+      registerToggle.addEventListener("click", () => {
+        isLoginMode = false;
+        registerToggle.classList.add("active");
+        loginToggle.classList.remove("active");
+        formTitle.textContent = "Register for Chat";
+        submitBtn.textContent = "Register";
+        errorMsg.style.display = "none";
+      });
+
+      // Form submission
+      authForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
         const username = document.getElementById("username").value.trim();
         const password = document.getElementById("password").value.trim();
         const room = document.getElementById("room").value.trim();
 
         if (!username || !password || !room) {
-          alert("Please enter username, password, and room number.");
+          showError("Please fill in all fields");
           return;
         }
 
-        const response = await fetch("/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password, room }),
-        });
+        try {
+          if (isLoginMode) {
+            // Login request
+            const response = await fetch("/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ username, password, room }),
+            });
 
-        const data = await response.json();
-        if (response.ok) {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("username", username);
-          localStorage.setItem("room", room);
-          window.location.href = "/chat.html";
-        } else {
-          alert(data.message || "Login failed.");
+            const data = await response.json();
+
+            if (!response.ok) {
+              throw new Error(data.message || "Login failed");
+            }
+
+            // Store the JWT token in localStorage
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("username", username);
+            localStorage.setItem("room", room);
+
+            // Redirect to chat page
+            window.location.href = "/chat.html";
+          } else {
+            // Register request
+            const response = await fetch("/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ username, password, room }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+              throw new Error(data.message || "Registration failed");
+            }
+
+            // Switch to login mode after successful registration
+            showError("Registration successful! Please login.", true);
+            loginToggle.click();
+          }
+        } catch (error) {
+          showError(error.message);
         }
+      });
+
+      // Show error or success message
+      function showError(message, isSuccess = false) {
+        errorMsg.textContent = message;
+        errorMsg.style.display = "block";
+        errorMsg.style.color = isSuccess ? "#27ae60" : "#e74c3c";
       }
+
+      // Check if user is already logged in
+      window.addEventListener("load", () => {
+        const token = localStorage.getItem("token");
+        if (token) {
+          window.location.href = "/chat.html";
+        }
+      });
     </script>
   </body>
 </html>

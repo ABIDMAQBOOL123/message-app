@@ -42,7 +42,7 @@ app.use(express.static(path.resolve("./public")));
 app.use(express.json()); // Parse JSON bodies
 
 // JWT Secret Key
-const JWT_SECRET = "your_jwt_secret_key";
+const JWT_SECRET = "abid123";
 
 // Middleware to verify JWT
 const authenticateJWT = (req, res, next) => {
