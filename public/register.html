@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - Chat App</title>
+    <title>Register - Chat App</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -16,7 +16,7 @@
         align-items: center;
         height: 100vh;
       }
-      .login-container {
+      .register-container {
         background-color: #fff;
         padding: 20px;
         border-radius: 8px;
@@ -24,11 +24,11 @@
         width: 300px;
         text-align: center;
       }
-      .login-container h2 {
+      .register-container h2 {
         margin-bottom: 20px;
         color: #075e54;
       }
-      .login-container input {
+      .register-container input {
         width: 100%;
         padding: 10px;
         margin-bottom: 15px;
@@ -36,7 +36,7 @@
         border-radius: 4px;
         outline: none;
       }
-      .login-container button {
+      .register-container button {
         width: 100%;
         padding: 10px;
         background-color: #075e54;
@@ -45,43 +45,43 @@
         border-radius: 4px;
         cursor: pointer;
       }
-      .login-container button:hover {
+      .register-container button:hover {
         background-color: #128c7e;
       }
-      .login-container p {
+      .register-container p {
         margin-top: 10px;
       }
-      .login-container a {
+      .register-container a {
         color: #075e54;
         text-decoration: none;
       }
-      .login-container a:hover {
+      .register-container a:hover {
         text-decoration: underline;
       }
     </style>
   </head>
   <body>
-    <div class="login-container">
-      <h2>Login</h2>
+    <div class="register-container">
+      <h2>Register</h2>
       <input type="text" id="username" placeholder="Enter your username" />
       <input type="password" id="password" placeholder="Enter your password" />
       <input type="text" id="room" placeholder="Enter room number" />
-      <button onclick="login()">Login</button>
-      <p>Don't have an account? <a href="/register.html">Register</a></p>
+      <button onclick="register()">Register</button>
+      <p>Already have an account? <a href="/login.html">Login</a></p>
     </div>
 
     <script>
-      async function login() {
+      async function register() {
         const username = document.getElementById("username").value.trim();
         const password = document.getElementById("password").value.trim();
         const room = document.getElementById("room").value.trim();
 
         if (!username || !password || !room) {
-          alert("Please enter username, password, and room number.");
+          alert("Please enter both username, password, and room number.");
           return;
         }
 
-        const response = await fetch("/login", {
+        const response = await fetch("/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, password, room }),
@@ -89,12 +89,10 @@
 
         const data = await response.json();
         if (response.ok) {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("username", username);
-          localStorage.setItem("room", room);
-          window.location.href = "/chat.html";
+          alert(data.message || "Registration successful.");
+          window.location.href = "/login.html";
         } else {
-          alert(data.message || "Login failed.");
+          alert(data.message || "Registration failed.");
         }
       }
     </script>
